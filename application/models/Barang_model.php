@@ -119,6 +119,7 @@ class Barang_model extends CI_Model
             $upload = $this->edit_foto_barang(md5($this->input->post("edit_nama_barang")) . "." . pathinfo($_FILES['edit_foto_barang']['name'], PATHINFO_EXTENSION));
         } else {
             $foto_barang = strip_tags($this->input->post("edit_foto_barang_old"));
+            $upload = true;
         }
         $data = [
             'nama_barang' => strip_tags($this->input->post("edit_nama_barang")),
@@ -128,29 +129,29 @@ class Barang_model extends CI_Model
             'foto_barang' => $foto_barang,
             'update_date' => date("Y-m-d")
         ];
-        if($upload == true){
-        if ($this->db->update("data_barang", $data, array('id_barang' => $this->input->post("id")))) {
-            $output = array(
-                "error_code" => 200,
-                "status" => "success",
-                "message" => "Data barang berhasil diedit.",
-                "upload" => $upload
-            );
-        } else {
-            if (!$this->session->flashdata('alert')) {
-                $message = "Data barang gagal diedit.";
+        if ($upload == true) {
+            if ($this->db->update("data_barang", $data, array('id_barang' => $this->input->post("id")))) {
+                $output = array(
+                    "error_code" => 200,
+                    "status" => "success",
+                    "message" => "Data barang berhasil diedit.",
+                    "upload" => $upload
+                );
             } else {
-                $message = $this->session->flashdata('alert');
+                if (!$this->session->flashdata('alert')) {
+                    $message = "Data barang gagal diedit.";
+                } else {
+                    $message = $this->session->flashdata('alert');
+                }
+                $output = array(
+                    "error_code" => 500,
+                    "status" => "error",
+                    "message" => "Data barang gagal diedit."
+                );
             }
+            echo json_encode($output);
+        } else {
             $output = array(
-                "error_code" => 500,
-                "status" => "error",
-                "message" => "Data barang gagal diedit."
-            );
-        }
-        echo json_encode($output);
-    }else{
-         $output = array(
                 "error_code" => 500,
                 "status" => "error",
                 "message" => $this->session->flashdata('alert'),
